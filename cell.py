@@ -16,6 +16,9 @@ class Cell:
         self.type = "none"
         self.label = "default"
     
+    def __str__(self):
+        return f"[Cell {self.type}] {self.label} \nIntensity | {self.intensity}\nCentroid | ({self.x}, {self.y})\n"
+    
     def init(self, type, coords):
         self.area = cellArea(coords)
         centroid = cellCentroid(coords, self.area)
