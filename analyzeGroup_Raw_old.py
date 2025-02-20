@@ -1,39 +1,19 @@
 from cell import *
 import openpyxl
 
-
-def analyzeSTDev_RawCentered(cellListRaw, cellList4T1):
-    threshold = 10 # micrometers
-    data = []
+def analyzeGroup_RawCentered(cellListRaw, cellList4T1):
+    cellList = [[], [], [], [], []]
+    group = [[0, 50], [50, 100], [100, 150], [150, 200], [200, 10000]]
     for i in range(len(cellListRaw)):
-        distList = []
-        effectCellList = []
-        minDist = 100000
+        cellRaw = cellListRaw[i]
+        row = [cellRaw, []]
         for j in range(len(cellList4T1)):
-            dist = cellDist(cellListRaw[i], cellList4T1[j])
-            if (dist < minDist):
-                minDist = dist
-            distList.append([dist, cellListRaw[i], cellList4T1[j]])
-
-        distSum, distCount = 0, 0
-        for k in range(len(distList)):
-            if (distList[k][0] <= minDist + threshold):
-                effectCellList.append(distList[k])
-                distSum += distList[k][0]
-                distCount += 1
-        avgDist = distSum / distCount
-
-        stdevSum = 0
-        if distCount == 1:
-            stdev = 0
-        else:
-            for m in range(len(effectCellList)):
-                stdevSum += (avgDist - effectCellList[m][0])**2
-            stdev = (stdevSum / (distCount - 1)) ** 0.5
-        
-        data.append([effectCellList, avgDist, stdev])
+            cell4T1 = cellList4T1[j]
+            dist = cellDist(cellRaw, cell4T1)
+            for k in range(len(group)):
+                if (group[k][0] < dist <= group[k][1]):
+                    row[1].append(cell4T1)
     
-    return data
 
 
 wb = openpyxl.Workbook()
@@ -44,7 +24,7 @@ runCount = 0
 for i in range(len(headerList)):
     for j in range(len(hourList)):
         for k in range(folderCount[i][j]):
-            offset = 9 * (k + 3 * (j + 3 * i)) + 1
+            offset = 7 * (k + 3 * (j + 3 * i)) + 1
             runCount += 1
             print("Trial #{} || {}_{}_{}".format(runCount, headerList[i], hourList[j], str(k+1)), end=" || ")
 
@@ -61,8 +41,6 @@ for i in range(len(headerList)):
             dataCount = 0
             for m in range(len(stdevAnalysis)):
                 data = stdevAnalysis[m][0]
-                w1.cell(dataCount + 5, offset+7).value = float(stdevAnalysis[m][1])
-                w1.cell(dataCount + 5, offset+8).value = float(stdevAnalysis[m][2])
                 w1.cell(dataCount + 5, offset) .value= data[0][1].label
                 w1.cell(dataCount + 5, offset+1) .value= float(data[0][1].intensity)
                 w1.cell(dataCount + 5, offset+2) .value= float(data[0][1].intensityPerArea())
@@ -75,5 +53,5 @@ for i in range(len(headerList)):
 
             
 
-filename = "results/stdev_result_10.xlsx"
+filename = "results/group_raw.xlsx"
 wb.save(filename)

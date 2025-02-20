@@ -3,6 +3,10 @@ import roifile
 import numpy as np
 import csv
 
+headerList = ["4T1_Raw_1_1", "4T1_Raw_1_2", "4T1_Raw_1_4", "Raw_4T1_1_2", "Raw_4T1_1_4"]
+hourList = ["0h", "24h", "72h"]
+folderCount = [[3, 3, 2], [3, 3, 3], [1, 3, 3], [3, 2, 2], [3, 3, 2]]
+
 class Cell:
     def __init__(self):
         self.x = 0
@@ -111,3 +115,4 @@ def extractCells(header, hours, folder):
         cellList4T1.append(cell4T1)
 
     return [cellListRaw, cellList4T1]
+
